@@ -1,0 +1,3230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="iconSmall.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skeld Cafeteria</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #090d19;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* =========================
+   LOADING SCREEN
+========================= */
+
+#loadingSystem {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+    overflow: hidden;
+    pointer-events: all;
+    background: transparent;
+}
+
+#blackCover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #000 url("spaceBackground.png") center center / cover no-repeat;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+.loadingDoor {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    z-index: 3;
+    transition: transform 1.2s cubic-bezier(.77, 0, .18, 1);
+}
+
+.loadingDoorLeft {
+    left: 0;
+    background: linear-gradient(
+        90deg,
+        #3a3a3a 0%,
+        #707070 70%,
+        #4a4a4a 100%
+    );
+    transform: translateX(-100%);
+}
+
+.loadingDoorRight {
+    right: 0;
+    background: linear-gradient(
+        270deg,
+        #3a3a3a 0%,
+        #707070 70%,
+        #4a4a4a 100%
+    );
+    transform: translateX(100%);
+}
+
+.doorHighlight {
+    position: absolute;
+    top: 0;
+    width: 18px;
+    height: 100%;
+    background: rgba(255,255,255,.10);
+}
+
+.loadingDoorLeft .doorHighlight {
+    right: 0;
+}
+
+.loadingDoorRight .doorHighlight {
+    left: 0;
+}
+
+#loadingSystem.doorsClosing .loadingDoorLeft {
+    transform: translateX(0);
+}
+
+#loadingSystem.doorsClosing .loadingDoorRight {
+    transform: translateX(0);
+}
+
+#loadingSystem.doorsOpening .loadingDoorLeft {
+    transform: translateX(-100%);
+}
+
+#loadingSystem.doorsOpening .loadingDoorRight {
+    transform: translateX(100%);
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 70px;
+    background: rgba(12,16,32,.97);
+    border-bottom: 2px solid #252d4a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.mini-crewmate {
+    width: 49px;
+    height: 40px;
+    object-fit: contain;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 0;
+}
+
+nav li {
+    display: flex;
+    align-items: center;
+}
+
+nav li:not(:last-child)::after {
+    content: "|";
+    color: #81252ab;
+    margin: 0 12px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color .2s;
+}
+
+nav a:hover,
+nav a.active {
+    color: #54d2ff;
+}
+
+.cart-button {
+    background: #54d2ff;
+    color: #07101b;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 17px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: .2s;
+}
+
+.cart-button:hover {
+    background: #78ddff;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   PAGES
+========================= */
+
+.page {
+    display: none;
+    min-height: calc(100vh - 70px);
+}
+
+.page.active {
+    display: block;
+}
+
+.page.page-enter {
+    animation: pageEnter .45s ease forwards;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+#pageTransition {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 9000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+}
+
+#pageTransition.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+    min-height: calc(100vh - 70px);
+    padding: 50px 7% 165px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+
+    background:
+        linear-gradient(
+            rgba(9, 13, 25, 0.45),
+            rgba(9, 13, 25, 0.55)
+        ),
+        url("skeldBackground.png") center center / cover no-repeat;
+
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-text {
+    max-width: 575px;
+    transform: translateY(-65px);
+    position: relative;
+    z-index: 3;
+}
+
+.badge {
+    display: inline-block;
+    background: #242c45;
+    color: #54d2ff;
+    border: 1px solid #54d2ff;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: .85rem;
+    margin-bottom: 18px;
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: .95;
+    margin-bottom: 20px;
+}
+
+.hero h1 span {
+    color: #e53935;
+}
+
+.hero p {
+    color: #b9c1d8;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.hero-character {
+    width: 220px;
+    height: 270px;
+    position: relative;
+    animation: floatCharacter 3s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-65px);
+    z-index: 3;
+}
+
+.hero-character img {
+    width: 100%;
+    height: 100%;
+    transform: translateX(-65px);
+    object-fit: contain;
+}
+
+/* =========================
+   FOOD IMAGE SCROLL GALLERY
+========================= */
+
+.food-gallery {
+    position: absolute;
+    left: 4%;
+    bottom: 72px;
+    width: 92%;
+    height: 125px;
+    overflow: hidden;
+
+    z-index: 2;
+
+    mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 5%,
+        black 95%,
+        transparent
+    );
+
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 5%,
+        black 95%,
+        transparent
+    );
+}
+
+.food-gallery-track {
+    display: flex;
+    width: max-content;
+    height: 100%;
+    align-items: center;
+    gap: 28px;
+
+    animation: foodGalleryScroll 28s linear infinite;
+}
+
+.food-gallery-item {
+    flex: 0 0 auto;
+    width: 145px;
+    height: 105px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    background: rgba(8, 14, 27, .65);
+    border: 2px solid rgba(84,210,255,.35);
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.35),
+        0 0 18px rgba(84,210,255,.08);
+
+    overflow: hidden;
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease;
+}
+
+.food-gallery-item:hover {
+    transform: translateY(-8px) scale(1.06);
+    border-color: #54d2ff;
+}
+
+.food-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+@keyframes foodGalleryScroll {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.scroll-down-button {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 48px;
+    border: 2px solid rgba(84,210,255,.45);
+    border-radius: 8px;
+    background: rgba(84,210,255,.12);
+    color: rgba(255,255,255,.55);
+    font-size: 1.6rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: .55;
+    transition:
+        opacity .2s,
+        background .2s,
+        border-color .2s,
+        color .2s,
+        transform .2s;
+    z-index: 5;
+}
+
+.scroll-down-button:hover {
+    opacity: 1;
+    background: rgba(84,210,255,.22);
+    border-color: #54d2ff;
+    color: white;
+    transform: translateX(-50%) translateY(-2px);
+}
+
+@keyframes floatCharacter {
+    0%,100% {
+        transform: translateY(-65px);
+    }
+
+    50% {
+        transform: translateY(-77px);
+    }
+}
+
+/* =========================
+   MENU
+========================= */
+
+.menu-section {
+    padding: 65px 6%;
+
+    background:
+        linear-gradient(
+            rgba(14,19,36,.82),
+            rgba(14,19,36,.90)
+        ),
+        url("kitchenBackground.png") center center / cover fixed;
+
+    scroll-margin-top: 70px;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.section-title h2 {
+    font-size: 2.3rem;
+}
+
+.section-title p {
+    color: #81252ab;
+    margin-top: 8px;
+}
+
+.controls {
+    max-width: 1000px;
+    margin: 0 auto 35px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 220px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 2px solid #252d4a;
+    background: #151b30;
+    color: white;
+    outline: none;
+}
+
+.search-box:focus {
+    border-color: #54d2ff;
+}
+
+.filter-btn {
+    border: 2px solid #252d4a;
+    background: #151b30;
+    color: #c8cee0;
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: #54d2ff;
+    border-color: #54d2ff;
+    color: #07101b;
+}
+
+.food-grid {
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+    gap: 22px;
+}
+
+.food-card {
+    background: #171d31;
+    border: 1px solid #29314c;
+    border-radius: 18px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(40px) scale(.95);
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    transition: border-color .2s,box-shadow .2s;
+}
+
+.food-card:hover {
+    border-color: #54d2ff;
+    box-shadow: 0 12px 35px rgba(84,210,255,.1);
+}
+
+.food-image {
+    height: 175px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: #151b30;
+}
+
+.real-food-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.food-info {
+    padding: 20px;
+}
+
+.food-info h3 {
+    font-size: 1.15rem;
+    margin-bottom: 7px;
+}
+
+.food-description {
+    color: #81252ab;
+    font-size: .9rem;
+    min-height: 40px;
+    line-height: 1.4;
+}
+
+.food-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    gap: 10px;
+}
+
+.price {
+    color: #54d2ff;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.food-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-btn {
+    border: none;
+    background: #54d2ff;
+    color: #07101b;
+    padding: 9px 13px;
+    border-radius: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.add-btn:hover {
+    background: #78ddff;
+    transform: scale(1.04);
+}
+
+.buy-btn {
+    border: none;
+    background: #54d2ff;
+    color: #07101b;
+    padding: 9px 13px;
+    border-radius: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.buy-btn:hover {
+    background: #78ddff;
+    transform: scale(1.04);
+}
+
+.no-results {
+    text-align: center;
+    color: #81252ab;
+    grid-column: 1 / -1;
+    padding: 40px;
+}
+
+/* =========================
+   ABOUT
+========================= */
+
+.about-page {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 7%;
+
+    background:
+        linear-gradient(
+            rgba(10,15,30,.72),
+            rgba(10,15,30,.85)
+        ),
+        url("aboutBackground.png") center center / cover no-repeat;
+}
+
+.about-content {
+    max-width: 750px;
+    text-align: center;
+    background: rgba(21,28,49,.90);
+    border: 1px solid #29314c;
+    border-radius: 0;
+    padding: 50px 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+}
+
+.about-content .badge {
+    border-radius: 0;
+}
+
+.about-content h1 {
+    font-size: 3rem;
+    margin: 15px 0;
+}
+
+.about-content p {
+    color: #929bb3;
+    line-height: 1.7;
+    font-size: 1.05rem;
+}
+
+.about-content blockquote {
+    margin: 30px auto;
+    padding: 20px;
+    background: #0e1425;
+    border-radius: 0 10px 10px 0;
+    color: #e8ebf4;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+.creator {
+    color: #54d2ff !important;
+    margin-top: 25px;
+}
+
+.back-button {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 13px 22px;
+    background: #54d2ff;
+    color: #07101b;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.back-button:hover {
+    background: #78ddff;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   CART
+========================= */
+
+.cart-panel {
+    position: fixed;
+    top: 0;
+    right: -420px;
+    width: min(420px,100%);
+    height: 100vh;
+    background: #11172a;
+    border-left: 2px solid #29314c;
+    z-index: 500;
+    transition: right .35s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-panel.open {
+    right: 0;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #29314c;
+}
+
+.close-cart {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.7rem;
+    cursor: pointer;
+}
+
+.cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.empty-cart {
+    text-align: center;
+    color: #81252ab;
+    padding: 50px 20px;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #181f35;
+    padding: 13px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.cart-item-name {
+    font-weight: bold;
+}
+
+.cart-item-price {
+    color: #54d2ff;
+    font-size: .9rem;
+    margin-top: 4px;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quantity-controls button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 7px;
+    background: #29314c;
+    color: white;
+    cursor: pointer;
+}
+
+.quantity-controls button:hover {
+    background: #54d2ff;
+    color: #111;
+}
+
+.cart-footer {
+    padding: 20px;
+    border-top: 1px solid #29314c;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.checkout-btn {
+    width: 100%;
+    padding: 14px;
+    background: #54d2ff;
+    color: #07101b;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.checkout-btn:hover {
+    background: #78ddff;
+}
+
+.checkout-btn:disabled {
+    background: #42485a;
+    cursor: not-allowed;
+}
+
+/* =========================
+   OVERLAY / MODAL
+========================= */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+}
+
+.overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    z-index: 800;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-box {
+    background: #151c31;
+    border: 2px solid #29314c;
+    width: min(500px,100%);
+    border-radius: 18px;
+    padding: 30px;
+    animation: modalTween .35s ease;
+}
+
+@keyframes modalTween {
+    from {
+        opacity: 0;
+        transform: scale(.7) translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.checkout-box {
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.checkout-box h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.checkout-subtitle {
+    text-align: center;
+    color: #929bb3;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: bold;
+    font-size: .9rem;
+}
+
+.form-group label span {
+    color: #747e98;
+    font-weight: normal;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 13px;
+    border-radius: 9px;
+    border: 2px solid #29314c;
+    background: #0e1425;
+    color: white;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #54d2ff;
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.delivery-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d1426;
+    border: 1px solid #29314c;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.delivery-summary strong {
+    color: #54d2ff;
+    font-size: 1.2rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 13px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cancel-btn {
+    background: #29314c;
+    color: white;
+    border: none;
+}
+
+.confirm-btn {
+    background: #54d2ff;
+    color: #07101b;
+    border: none;
+}
+
+.confirm-btn:hover {
+    background: #78ddff;
+}
+
+/* =========================
+   ORDERING
+========================= */
+
+#orderingScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: #080b14;
+}
+
+#orderingScreen.show {
+    display: flex;
+    animation: orderingFadeIn .3s ease;
+}
+
+@keyframes orderingFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.ordering-animation {
+    width: 180px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.order-frame {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    opacity: 0;
+    object-fit: contain;
+}
+
+.order-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.order-frame.active {
+    opacity: 1;
+}
+
+#orderingText {
+    font-size: 1.7rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+#orderingSubtext {
+    color: #81252ab;
+    text-align: center;
+}
+
+.ordering-dots {
+    margin-top: 18px;
+    display: flex;
+    gap: 7px;
+}
+
+.ordering-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #5a2020;
+    transition: background .15s, box-shadow .15s, transform .15s;
+}
+
+.ordering-dot.active {
+    background: #e53935;
+    box-shadow: 0 0 10px #e53935;
+    transform: scale(1.25);
+}
+
+/* =========================
+   TOAST / FOOTER
+========================= */
+
+.toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%,100px);
+    background: #1d263e;
+    border: 1px solid #54d2ff;
+    color: white;
+    padding: 13px 20px;
+    border-radius: 10px;
+    z-index: 10000;
+    opacity: 0;
+    transition: .3s;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%,0);
+}
+
+footer {
+    text-align: center;
+    padding: 35px;
+    color: #6e7892;
+    border-top: 1px solid #202942;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:700px) {
+    nav {
+        padding: 0 4%;
+    }
+
+    nav li:not(:last-child)::after {
+        margin: 0 6px;
+    }
+
+    .hero {
+        padding: 35px 6% 160px;
+        min-height: calc(100vh - 70px);
+    }
+
+    .hero-character {
+        display: none;
+    }
+
+    .hero-text {
+        transform: translateY(-85px);
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+    }
+
+    .food-gallery {
+        left: 2%;
+        width: 96%;
+        height: 105px;
+        bottom: 70px;
+    }
+
+    .food-gallery-track {
+        gap: 18px;
+        animation-duration: 22s;
+    }
+
+    .food-gallery-item {
+        width: 120px;
+        height: 88px;
+    }
+
+    .food-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about-content {
+        padding: 35px 20px;
+    }
+
+    .about-content h1 {
+        font-size: 2.2rem;
+    }
+}
+
+@media(max-width:500px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    nav li:not(:last-child)::after {
+        margin: 0 4px;
+    }
+
+    nav ul {
+        gap: 0;
+    }
+
+    nav a {
+        font-size: .8rem;
+    }
+
+    .cart-button {
+        padding: 8px 10px;
+    }
+
+    .hero-text {
+        transform: translateY(-75px);
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .food-gallery {
+        height: 90px;
+    }
+
+    .food-gallery-item {
+        width: 105px;
+        height: 78px;
+        border-radius: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loadingSystem">
+    <div id="blackCover"></div>
+
+    <div class="loadingDoor loadingDoorLeft" id="loadingLeft">
+        <div class="doorHighlight"></div>
+    </div>
+
+    <div class="loadingDoor loadingDoorRight" id="loadingRight">
+        <div class="doorHighlight"></div>
+    </div>
+</div>
+
+<div id="pageTransition"></div>
+
+<nav>
+    <div class="logo">
+        <img class="mini-crewmate" src="iconSmall.png" alt="Crewmate">
+        Skeld Cafeteria
+    </div>
+
+    <ul>
+        <li>
+            <a id="homeNav" class="active" href="#home" onclick="handleHomeClick(event)">
+                Home
+            </a>
+        </li>
+
+        <li>
+            <a id="menuNav" href="#menu" onclick="handleMenuClick(event)">
+                Menu
+            </a>
+        </li>
+
+        <li>
+            <a id="aboutNav" href="#about" onclick="handleAboutClick(event)">
+                About
+            </a>
+        </li>
+    </ul>
+
+    <button class="cart-button" onclick="toggleCart()">
+        🛒 Cart (<span id="cartCount">0</span>)
+    </button>
+</nav>
+
+<main id="homePage" class="page active">
+
+<section class="hero">
+
+    <div class="hero-text">
+
+        <h1>
+            Hungry,
+            <span>crew?</span>
+            <br>
+        </h1>
+
+        <p>
+            Order up delicious meals straight from the cafeteria!
+        </p>
+
+        <p>
+            No sabotages, suspicious ingredients and no emergency meetings required, now delivering with lightspeed travel.
+        </p>
+
+    </div>
+
+    <div class="hero-character">
+        <img src="redCrew.png" alt="Crewmate">
+    </div>
+
+    <div class="food-gallery">
+
+        <div class="food-gallery-track">
+
+            <div class="food-gallery-item">
+                <img src="deluxeCombo.png" alt="Airship Deluxe">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="crewCoffee.png" alt="Crewmate Coffee">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="greenSalad.png" alt="Green's Salad">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="impostorSlushie.png" alt="Impostor Slushie">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="polusStew.png" alt="Polus Stew">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="skeldBurger.png" alt="Skeld Burger">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="spaceBiscuit.png" alt="Space Biscuit">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="yellowPasta.png" alt="Yellow's Pasta">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="deluxeCombo.png" alt="Airship Deluxe">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="crewCoffee.png" alt="Crewmate Coffee">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="greenSalad.png" alt="Green's Salad">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="impostorSlushie.png" alt="Impostor Slushie">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="polusStew.png" alt="Polus Stew">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="skeldBurger.png" alt="Skeld Burger">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="spaceBiscuit.png" alt="Space Biscuit">
+            </div>
+
+            <div class="food-gallery-item">
+                <img src="yellowPasta.png" alt="Yellow's Pasta">
+            </div>
+
+        </div>
+
+    </div>
+
+    <button
+        class="scroll-down-button"
+        onclick="scrollToMenu(true)"
+        aria-label="Scroll down to menu"
+    >
+        ↓
+    </button>
+
+</section>
+
+<section class="menu-section" id="menu">
+
+    <div class="section-title">
+        <h2>Cafeteria Menu</h2>
+
+        <p>
+            Choose your food before
+            the next emergency meeting.
+        </p>
+    </div>
+
+    <div class="controls">
+
+        <input
+            type="text"
+            id="searchInput"
+            class="search-box"
+            placeholder="Search for food, drinks and dessert"
+        >
+
+        <button
+            class="filter-btn active"
+            onclick="filterFood('all',this)"
+        >
+            All
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterFood('meal',this)"
+        >
+            Meals
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterFood('drink',this)"
+        >
+            Drinks
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterFood('snack',this)"
+        >
+            Snacks
+        </button>
+
+    </div>
+
+    <div class="food-grid" id="foodGrid">
+
+        <article class="food-card" data-category="meal" data-name="airship deluxe">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="deluxeCombo.png"
+                    alt="Airship Deluxe"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Airship Deluxe</h3>
+
+                <p class="food-description">
+                    A deluxe meal worthy of the Airship
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱200</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Airship Deluxe',200)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Airship Deluxe',200)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <article class="food-card" data-category="meal" data-name="polus stew">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="polusStew.png"
+                    alt="Polus Stew"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Polus Stew</h3>
+
+                <p class="food-description">
+                    Warm and hearty stew from the frozen planet
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱129</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Polus Stew',129)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Polus Stew',129)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <article class="food-card" data-category="meal" data-name="yellow's pasta">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="yellowPasta.png"
+                    alt="Yellow's Pasta"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Yellow's Pasta</h3>
+
+                <p class="food-description">
+                    Creamy pasta prepared by Yellow
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱80</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Yellow’s Pasta',80)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Yellow’s Pasta',80)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <article class="food-card" data-category="drink" data-name="crewmate coffee">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="crewCoffee.png"
+                    alt="Crewmate Coffee"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Crewmate Coffee</h3>
+
+                <p class="food-description">
+                    Coffee for crewmates who need a boost
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱49</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Crewmate Coffee',49)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Crewmate Coffee',49)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <article class="food-card" data-category="drink" data-name="impostor slushie">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="impostorSlushie.png"
+                    alt="Impostor Slushie"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Impostor Slushie</h3>
+
+                <p class="food-description">
+                    A suspiciously cold and colorful slushie
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱89</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Impostor Slushie',89)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Impostor Slushie',89)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <article class="food-card" data-category="snack" data-name="space biscuit">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="spaceBiscuit.png"
+                    alt="Space Biscuit"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Space Biscuit</h3>
+
+                <p class="food-description">
+                    A crunchy snack for long missions
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱49</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Space Biscuit',49)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Space Biscuit',49)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <article class="food-card" data-category="meal" data-name="skeld burger">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="skeldBurger.png"
+                    alt="Skeld Burger"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Skeld Burger</h3>
+
+                <p class="food-description">
+                    A classic burger for the whole crew
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱100</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Skeld Burger',100)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Skeld Burger',100)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <article class="food-card" data-category="snack" data-name="green's salad">
+
+            <div class="food-image">
+                <img
+                    class="real-food-image"
+                    src="greenSalad.png"
+                    alt="Green's Salad"
+                >
+            </div>
+
+            <div class="food-info">
+
+                <h3>Green's Salad</h3>
+
+                <p class="food-description">
+                    A fresh and healthy crewmate favorite
+                </p>
+
+                <div class="food-bottom">
+
+                    <span class="price">₱125</span>
+
+                    <div class="food-actions">
+
+                        <button
+                            class="add-btn"
+                            onclick="addToCart('Green’s Salad',125)"
+                        >
+                            Add to Cart
+                        </button>
+
+                        <button
+                            class="buy-btn"
+                            onclick="buyNow('Green’s Salad',125)"
+                        >
+                            Buy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </div>
+
+</section>
+
+<footer>
+    Skeld Cafeteria • All rights reserved.
+</footer>
+
+</main>
+
+<main id="aboutPage" class="page">
+
+<section class="about-page">
+
+    <div class="about-content">
+
+        <span class="badge">
+            Skeld Cafeteria
+        </span>
+
+        <h1>
+            Sus-free food for the Crewmates
+        </h1>
+
+        <p>
+            Skeld Cafeteria is a food delivery website designed to help Crewmates and Impostors alike to order up cafeteria meals anywhere at the vacuum of space conveniently.
+        </p>
+
+        <blockquote>
+            "No crewmate should ever face an emergency meeting with an empty stomach."
+        </blockquote>
+
+        <p class="creator">
+            WEBSITE DEVELOPER :
+            <strong>BICLAR, ADRIAN B.</strong>
+        </p>
+
+        <button
+            class="back-button"
+            onclick="goToHomeFromAbout()"
+        >
+            Return to Home
+        </button>
+
+    </div>
+
+</section>
+
+</main>
+
+<div
+    class="overlay"
+    id="overlay"
+    onclick="toggleCart()"
+></div>
+
+<aside class="cart-panel" id="cartPanel">
+
+    <div class="cart-header">
+        <h2>🛒 Your Cart</h2>
+
+        <button
+            class="close-cart"
+            onclick="toggleCart()"
+        >
+            ×
+        </button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+
+        <div class="empty-cart">
+            Your cart is empty.
+        </div>
+
+    </div>
+
+    <div class="cart-footer">
+
+        <div class="total-row">
+            <span>Total</span>
+
+            <span id="cartTotal">
+                ₱0
+            </span>
+        </div>
+
+        <button
+            class="checkout-btn"
+            id="checkoutBtn"
+            onclick="openCheckout()"
+            disabled
+        >
+            Checkout
+        </button>
+
+    </div>
+
+</aside>
+
+<div class="modal" id="checkoutModal">
+
+    <div class="modal-box checkout-box">
+
+        <h2>Delivery Details</h2>
+
+        <p class="checkout-subtitle">
+            Enter your information so the
+            crew can deliver your order.
+        </p>
+
+        <form
+            id="deliveryForm"
+            onsubmit="submitOrder(event)"
+        >
+
+            <div class="form-group">
+
+                <label for="customerName">
+                    Full Name *
+                </label>
+
+                <input
+                    type="text"
+                    id="customerName"
+                    placeholder="e.g. Crewmate Red"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="phoneNumber">
+                    Phone Number *
+                </label>
+
+                <input
+                    type="tel"
+                    id="phoneNumber"
+                    placeholder="e.g. 0912 345 6789"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="deliveryAddress">
+                    Delivery Address *
+                </label>
+
+                <textarea
+                    id="deliveryAddress"
+                    placeholder="House/Building, Street, Barangay, City"
+                    required
+                ></textarea>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="city">
+                        City *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="city"
+                        placeholder="City"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="postalCode">
+                        Postal Code *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="postalCode"
+                        placeholder="Postal Code"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="deliveryNotes">
+                    Delivery Notes
+                    <span>(Optional)</span>
+                </label>
+
+                <textarea
+                    id="deliveryNotes"
+                    placeholder="e.g. Leave at the front door."
+                ></textarea>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="paymentMethod">
+                    Payment Method *
+                </label>
+
+                <select id="paymentMethod" required>
+
+                    <option value="">
+                        Select payment method
+                    </option>
+
+                    <option value="Cash on Delivery">
+                        Cash on Delivery
+                    </option>
+
+                    <option value="GCash">
+                        GCash
+                    </option>
+
+                    <option value="Card">
+                        Credit / Debit Card
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="delivery-summary">
+
+                <span>Order Total</span>
+
+                <strong id="checkoutTotal">
+                    ₱0
+                </strong>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="cancelCheckout()"
+                >
+                    Go Back
+                </button>
+
+                <button
+                    type="submit"
+                    class="confirm-btn"
+                >
+                    Place Order
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div id="orderingScreen">
+
+    <div class="ordering-animation">
+
+        <div class="order-frame active">
+            <img src="anim1.png" alt="Loading">
+        </div>
+
+        <div class="order-frame">
+            <img src="anim2.png" alt="Loading">
+        </div>
+
+        <div class="order-frame">
+            <img src="anim3.png" alt="Loading">
+        </div>
+
+        <div class="order-frame">
+            <img src="anim4.png" alt="Loading">
+        </div>
+
+    </div>
+
+    <h2 id="orderingText">Processing Order...</h2>
+
+    <p id="orderingSubtext">
+        Sending your order to the cafeteria.
+    </p>
+
+    <div class="ordering-dots">
+
+        <span class="ordering-dot active"></span>
+        <span class="ordering-dot"></span>
+        <span class="ordering-dot"></span>
+        <span class="ordering-dot"></span>
+        <span class="ordering-dot"></span>
+
+    </div>
+
+</div>
+
+<div class="toast" id="toast">
+    Added to cart!
+</div>
+
+<script>
+
+let cart = [];
+let currentCategory = "all";
+let currentPage = "home";
+let pageTransitionBusy = false;
+let orderingFrameInterval;
+let orderingDotInterval;
+let buyItemPending = null;
+let toastTimer;
+
+function runLoadingAnimation() {
+    const loadingSystem = document.getElementById("loadingSystem");
+    const blackCover = document.getElementById("blackCover");
+
+    if (!loadingSystem || !blackCover) {
+        return;
+    }
+
+    loadingSystem.classList.remove(
+        "doorsClosing",
+        "doorsOpening",
+    );
+
+    blackCover.style.opacity = "1";
+
+    setTimeout(() => {
+        if (!document.body.contains(loadingSystem)) {
+            return;
+        }
+
+        loadingSystem.classList.add("doorsClosing");
+    }, 500);
+
+    setTimeout(() => {
+        if (!document.body.contains(loadingSystem)) {
+            return;
+        }
+
+        blackCover.style.opacity = "0";
+    }, 1800);
+
+    setTimeout(() => {
+        animateMenuCards();
+    }, 1900);
+
+    setTimeout(() => {
+        if (!document.body.contains(loadingSystem)) {
+            return;
+        }
+
+        loadingSystem.classList.remove("doorsClosing");
+        loadingSystem.classList.add("doorsOpening");
+    }, 2800);
+
+    setTimeout(() => {
+        if (document.body.contains(loadingSystem)) {
+            loadingSystem.remove();
+        }
+    }, 4100);
+}
+
+function getMenuScrollTarget() {
+    const menu = document.getElementById("menu");
+
+    if (!menu) {
+        return 0;
+    }
+
+    const nav = document.querySelector("nav");
+
+    const navHeight =
+        nav ? nav.getBoundingClientRect().height : 70;
+
+    const rect =
+        menu.getBoundingClientRect();
+
+    const target =
+        window.scrollY +
+        rect.top -
+        navHeight +
+        60;
+
+    return Math.max(0, Math.round(target));
+}
+
+function scrollToTop(smooth = true) {
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: smooth ? "smooth" : "auto"
+    });
+}
+
+function scrollToMenu(smooth = true) {
+    const menu = document.getElementById("menu");
+
+    if (!menu) {
+        return;
+    }
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            const target = getMenuScrollTarget();
+
+            window.scrollTo({
+                top: target,
+                left: 0,
+                behavior: smooth ? "smooth" : "auto"
+            });
+        });
+    });
+}
+
+function updateNavigation(page) {
+    const homeNav = document.getElementById("homeNav");
+    const menuNav = document.getElementById("menuNav");
+    const aboutNav = document.getElementById("aboutNav");
+
+    homeNav.classList.remove("active");
+    menuNav.classList.remove("active");
+    aboutNav.classList.remove("active");
+
+    if (page === "about") {
+        aboutNav.classList.add("active");
+    } else {
+        homeNav.classList.add("active");
+    }
+}
+
+function updateNavigationByScroll() {
+    if (currentPage !== "home") {
+        return;
+    }
+
+    const menu = document.getElementById("menu");
+
+    if (!menu) {
+        return;
+    }
+
+    const nav = document.querySelector("nav");
+    const navHeight =
+        nav ? nav.getBoundingClientRect().height : 70;
+
+    const menuTop =
+        menu.getBoundingClientRect().top;
+
+    const homeNav = document.getElementById("homeNav");
+    const menuNav = document.getElementById("menuNav");
+    const aboutNav = document.getElementById("aboutNav");
+
+    homeNav.classList.remove("active");
+    menuNav.classList.remove("active");
+    aboutNav.classList.remove("active");
+
+    if (menuTop <= navHeight + 10) {
+        menuNav.classList.add("active");
+    } else {
+        homeNav.classList.add("active");
+    }
+}
+
+function setPage(page) {
+    const homePage = document.getElementById("homePage");
+    const aboutPage = document.getElementById("aboutPage");
+
+    if (page === "about") {
+        homePage.classList.remove("active");
+        aboutPage.classList.remove("active");
+        aboutPage.classList.add("active");
+        aboutPage.classList.remove("page-enter");
+
+        void aboutPage.offsetWidth;
+
+        aboutPage.classList.add("page-enter");
+
+        setTimeout(() => {
+            aboutPage.classList.remove("page-enter");
+        }, 500);
+
+        currentPage = "about";
+        updateNavigation("about");
+
+        history.replaceState(
+            null,
+            "",
+            "#about"
+        );
+
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "auto"
+        });
+
+        return;
+    }
+
+    aboutPage.classList.remove("active");
+    homePage.classList.remove("active");
+    homePage.classList.add("active");
+    homePage.classList.remove("page-enter");
+
+    void homePage.offsetWidth;
+
+    homePage.classList.add("page-enter");
+
+    setTimeout(() => {
+        homePage.classList.remove("page-enter");
+    }, 500);
+
+    currentPage = "home";
+    updateNavigation("home");
+
+    history.replaceState(
+        null,
+        "",
+        "#home"
+    );
+}
+
+function transitionToPage(page, afterChange = null) {
+    if (pageTransitionBusy) {
+        return;
+    }
+
+    if (page === currentPage) {
+        if (afterChange) {
+            afterChange();
+        }
+
+        return;
+    }
+
+    pageTransitionBusy = true;
+
+    const transition =
+        document.getElementById("pageTransition");
+
+    transition.classList.add("active");
+
+    setTimeout(() => {
+        setPage(page);
+    }, 450);
+
+    setTimeout(() => {
+        transition.classList.remove("active");
+    }, 900);
+
+    setTimeout(() => {
+        if (typeof afterChange === "function") {
+            afterChange();
+        }
+    }, 900);
+
+    setTimeout(() => {
+        pageTransitionBusy = false;
+    }, 1300);
+}
+
+function handleHomeClick(event) {
+    event.preventDefault();
+
+    if (currentPage === "home") {
+        scrollToTop(true);
+        updateNavigation("home");
+
+        history.replaceState(
+            null,
+            "",
+            "#home"
+        );
+
+        return;
+    }
+
+    transitionToPage(
+        "home",
+        () => {
+            scrollToTop(false);
+        }
+    );
+}
+
+function handleAboutClick(event) {
+    event.preventDefault();
+
+    if (currentPage === "about") {
+        scrollToTop(true);
+        updateNavigation("about");
+
+        history.replaceState(
+            null,
+            "",
+            "#about"
+        );
+
+        return;
+    }
+
+    transitionToPage(
+        "about",
+        () => {
+            scrollToTop(false);
+        }
+    );
+}
+
+function handleMenuClick(event) {
+    event.preventDefault();
+
+    if (currentPage === "home") {
+        scrollToMenu(true);
+        history.replaceState(
+            null,
+            "",
+            "#menu"
+        );
+
+        return;
+    }
+
+    transitionToPage(
+        "home",
+        () => {
+            scrollToMenu(true);
+
+            history.replaceState(
+                null,
+                "",
+                "#menu"
+            );
+        }
+    );
+}
+
+function goToHomeFromAbout() {
+    if (currentPage !== "about") {
+        scrollToTop(true);
+        return;
+    }
+
+    transitionToPage(
+        "home",
+        () => {
+            scrollToTop(false);
+        }
+    );
+}
+
+function animateMenuCards() {
+    const cards =
+        document.querySelectorAll(".food-card");
+
+    cards.forEach((card,index) => {
+        setTimeout(() => {
+            tweenCard(card);
+        }, index * 80);
+    });
+}
+
+function tweenCard(card) {
+    const duration = 450;
+    const start = performance.now();
+
+    function animate(time) {
+        const progress =
+            Math.min(
+                (time - start) / duration,
+                1
+            );
+
+        const eased =
+            1 - Math.pow(
+                1 - progress,
+                3
+            );
+
+        card.style.opacity = eased;
+
+        const y =
+            40 * (1 - eased);
+
+        const scale =
+            .95 + (.05 * eased);
+
+        card.style.transform =
+            `translateY(${y}px) scale(${scale})`;
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            card.style.opacity = "1";
+            card.style.transform =
+                "translateY(0) scale(1)";
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+function addToCart(name,price) {
+    const existing =
+        cart.find(
+            item => item.name === name
+        );
+
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({
+            name: name,
+            price: price,
+            quantity: 1
+        });
+    }
+
+    updateCart();
+
+    showToast(
+        name + " has been added to cart!"
+    );
+}
+
+function removeFromCart(name) {
+    const item =
+        cart.find(
+            item => item.name === name
+        );
+
+    if (!item) {
+        return;
+    }
+
+    item.quantity--;
+
+    if (item.quantity <= 0) {
+        cart =
+            cart.filter(
+                item => item.name !== name
+            );
+    }
+
+    updateCart();
+}
+
+function removeOneFromCart(name) {
+    const item =
+        cart.find(
+            item => item.name === name
+        );
+
+    if (!item) {
+        return;
+    }
+
+    item.quantity--;
+
+    if (item.quantity <= 0) {
+        cart =
+            cart.filter(
+                item => item.name !== name
+            );
+    }
+
+    updateCart();
+}
+
+function updateCart() {
+    const cartItems =
+        document.getElementById("cartItems");
+
+    const cartTotal =
+        document.getElementById("cartTotal");
+
+    const cartCount =
+        document.getElementById("cartCount");
+
+    const checkoutBtn =
+        document.getElementById("checkoutBtn");
+
+    if (cart.length === 0) {
+        cartItems.innerHTML = `
+            <div class="empty-cart">
+                Your cart is empty.
+                <br><br>
+                Add something
+                from the cafeteria!
+            </div>
+        `;
+
+        cartTotal.textContent = "₱0";
+        cartCount.textContent = "0";
+        checkoutBtn.disabled = true;
+
+        return;
+    }
+
+    let total = 0;
+    let count = 0;
+
+    cartItems.innerHTML = "";
+
+    cart.forEach(item => {
+        total +=
+            item.price *
+            item.quantity;
+
+        count +=
+            item.quantity;
+
+        const element =
+            document.createElement("div");
+
+        element.className =
+            "cart-item";
+
+        const information =
+            document.createElement("div");
+
+        const itemName =
+            document.createElement("div");
+
+        itemName.className =
+            "cart-item-name";
+
+        itemName.textContent =
+            item.name;
+
+        const itemPrice =
+            document.createElement("div");
+
+        itemPrice.className =
+            "cart-item-price";
+
+        itemPrice.textContent =
+            `₱${item.price} each`;
+
+        information.appendChild(itemName);
+        information.appendChild(itemPrice);
+
+        const controls =
+            document.createElement("div");
+
+        controls.className =
+            "quantity-controls";
+
+        const minus =
+            document.createElement("button");
+
+        minus.textContent = "−";
+
+        minus.onclick =
+            () =>
+                removeFromCart(
+                    item.name
+                );
+
+        const quantity =
+            document.createElement("strong");
+
+        quantity.textContent =
+            item.quantity;
+
+        const plus =
+            document.createElement("button");
+
+        plus.textContent = "+";
+
+        plus.onclick =
+            () =>
+                addToCart(
+                    item.name,
+                    item.price
+                );
+
+        controls.appendChild(minus);
+        controls.appendChild(quantity);
+        controls.appendChild(plus);
+
+        element.appendChild(information);
+        element.appendChild(controls);
+
+        cartItems.appendChild(element);
+    });
+
+    cartTotal.textContent =
+        "₱" + total;
+
+    cartCount.textContent =
+        count;
+
+    checkoutBtn.disabled =
+        false;
+}
+
+function toggleCart() {
+    const panel =
+        document.getElementById("cartPanel");
+
+    const overlay =
+        document.getElementById("overlay");
+
+    panel.classList.toggle("open");
+    overlay.classList.toggle("active");
+}
+
+function buyNow(name,price) {
+    buyItemPending = name;
+
+    addToCart(
+        name,
+        price
+    );
+
+    const panel =
+        document.getElementById("cartPanel");
+
+    const overlay =
+        document.getElementById("overlay");
+
+    panel.classList.add("open");
+    overlay.classList.add("active");
+
+    openCheckout();
+}
+
+function showToast(message) {
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent =
+        message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer =
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2000);
+}
+
+document
+    .getElementById("searchInput")
+    .addEventListener(
+        "input",
+        filterMenu
+    );
+
+function filterMenu() {
+    const search =
+        document
+            .getElementById("searchInput")
+            .value
+            .toLowerCase()
+            .trim();
+
+    const cards =
+        document.querySelectorAll(".food-card");
+
+    let visible = 0;
+
+    cards.forEach(card => {
+        const name =
+            card.dataset.name.toLowerCase();
+
+        const category =
+            card.dataset.category;
+
+        const matchesSearch =
+            name.includes(search);
+
+        const matchesCategory =
+            currentCategory === "all" ||
+            category === currentCategory;
+
+        if (
+            matchesSearch &&
+            matchesCategory
+        ) {
+            card.style.display =
+                "block";
+
+            visible++;
+        } else {
+            card.style.display =
+                "none";
+        }
+    });
+
+    let noResults =
+        document.querySelector(".no-results");
+
+    if (visible === 0) {
+        if (!noResults) {
+            noResults =
+                document.createElement("div");
+
+            noResults.className =
+                "no-results";
+
+            noResults.textContent =
+                "No food found. Try another search.";
+
+            document
+                .getElementById("foodGrid")
+                .appendChild(noResults);
+        }
+    } else {
+        if (noResults) {
+            noResults.remove();
+        }
+    }
+}
+
+function filterFood(category,button) {
+    currentCategory =
+        category;
+
+    document
+        .querySelectorAll(".filter-btn")
+        .forEach(
+            btn =>
+                btn.classList.remove("active")
+        );
+
+    button.classList.add("active");
+
+    filterMenu();
+}
+
+function openCheckout() {
+    if (cart.length === 0) {
+        showToast(
+            "Your cart is empty!"
+        );
+
+        return;
+    }
+
+    const total =
+        cart.reduce(
+            (sum,item) =>
+                sum +
+                item.price *
+                item.quantity,
+            0
+        );
+
+    document
+        .getElementById("checkoutTotal")
+        .textContent =
+        "₱" + total;
+
+    document
+        .getElementById("checkoutModal")
+        .classList.add("show");
+}
+
+function closeCheckout() {
+    document
+        .getElementById("checkoutModal")
+        .classList.remove("show");
+}
+
+function cancelCheckout() {
+    if (buyItemPending) {
+        removeOneFromCart(
+            buyItemPending
+        );
+
+        buyItemPending = null;
+    }
+
+    closeCheckout();
+}
+
+function submitOrder(event) {
+    event.preventDefault();
+
+    if (cart.length === 0) {
+        showToast(
+            "Your cart is empty!"
+        );
+
+        closeCheckout();
+
+        buyItemPending = null;
+
+        return;
+    }
+
+    const name =
+        document
+            .getElementById("customerName")
+            .value
+            .trim();
+
+    const phone =
+        document
+            .getElementById("phoneNumber")
+            .value
+            .trim();
+
+    const address =
+        document
+            .getElementById("deliveryAddress")
+            .value
+            .trim();
+
+    const city =
+        document
+            .getElementById("city")
+            .value
+            .trim();
+
+    const postal =
+        document
+            .getElementById("postalCode")
+            .value
+            .trim();
+
+    const payment =
+        document
+            .getElementById("paymentMethod")
+            .value;
+
+    if (
+        !name ||
+        !phone ||
+        !address ||
+        !city ||
+        !postal ||
+        !payment
+    ) {
+        showToast(
+            "Please complete all required fields."
+        );
+
+        return;
+    }
+
+    const orderNumber =
+        "| Order-" +
+        Math.floor(
+            100000 +
+            Math.random() *
+            900000
+        );
+
+    const total =
+        cart.reduce(
+            (sum,item) =>
+                sum +
+                item.price *
+                item.quantity,
+            0
+        );
+
+    closeCheckout();
+
+    buyItemPending = null;
+
+    startOrderingAnimation(
+        orderNumber,
+        name,
+        total
+    );
+}
+
+function startOrderingAnimation(
+    orderNumber,
+    customerName,
+    total
+) {
+    const screen =
+        document.getElementById(
+            "orderingScreen"
+        );
+
+    const text =
+        document.getElementById(
+            "orderingText"
+        );
+
+    const subtext =
+        document.getElementById(
+            "orderingSubtext"
+        );
+
+    const frames =
+        document.querySelectorAll(
+            ".order-frame"
+        );
+
+    const dots =
+        document.querySelectorAll(
+            ".ordering-dot"
+        );
+
+    let currentFrame = 0;
+    let currentDot = 0;
+
+    clearInterval(orderingFrameInterval);
+    clearInterval(orderingDotInterval);
+
+    screen.classList.add("show");
+
+    text.textContent =
+        "Ordering...";
+
+    subtext.textContent =
+        "Sending your order to the cafeteria.";
+
+    frames.forEach(
+        frame =>
+            frame.classList.remove("active")
+    );
+
+    dots.forEach(
+        dot =>
+            dot.classList.remove("active")
+    );
+
+    frames[0].classList.add("active");
+    dots[0].classList.add("active");
+
+    orderingFrameInterval =
+        setInterval(() => {
+            frames.forEach(
+                frame =>
+                    frame.classList.remove("active")
+            );
+
+            frames[currentFrame]
+                .classList.add("active");
+
+            currentFrame =
+                (currentFrame + 1) % 4;
+        }, 250);
+
+    orderingDotInterval =
+        setInterval(() => {
+            dots.forEach(
+                dot =>
+                    dot.classList.remove("active")
+            );
+
+            dots[currentDot]
+                .classList.add("active");
+
+            currentDot =
+                (currentDot + 1) % 5;
+        }, 300);
+
+    setTimeout(() => {
+        finishOrdering(
+            orderNumber,
+            customerName,
+            total
+        );
+    }, 3000);
+}
+
+function finishOrdering(
+    orderNumber,
+    customerName,
+    total
+) {
+    const text =
+        document.getElementById(
+            "orderingText"
+        );
+
+    const subtext =
+        document.getElementById(
+            "orderingSubtext"
+        );
+
+    text.textContent =
+        "Order Confirmed! ✅";
+
+    subtext.textContent =
+        `Thanks, ${customerName}! ` +
+        `Order ${orderNumber} is being prepared.`;
+
+    cart = [];
+
+    updateCart();
+
+    setTimeout(() => {
+        document
+            .getElementById(
+                "orderingScreen"
+            )
+            .classList.remove("show");
+
+        clearInterval(
+            orderingFrameInterval
+        );
+
+        clearInterval(
+            orderingDotInterval
+        );
+
+        document
+            .getElementById(
+                "deliveryForm"
+            )
+            .reset();
+
+        showToast(
+            `Order ${orderNumber} confirmed!`
+        );
+    }, 1500);
+}
+
+window.addEventListener(
+    "hashchange",
+    handleHashNavigation
+);
+
+window.addEventListener(
+    "scroll",
+    updateNavigationByScroll
+);
+
+function handleHashNavigation() {
+    const hash =
+        window.location.hash;
+
+    if (hash === "#about") {
+        if (currentPage !== "about") {
+            transitionToPage(
+                "about"
+            );
+        } else {
+            scrollToTop(false);
+        }
+
+        return;
+    }
+
+    if (hash === "#menu") {
+        if (currentPage === "home") {
+            scrollToMenu(false);
+        } else {
+            transitionToPage(
+                "home",
+                () => {
+                    scrollToMenu(false);
+                }
+            );
+        }
+
+        return;
+    }
+
+    if (currentPage === "about") {
+        transitionToPage(
+            "home",
+            () => {
+                scrollToTop(false);
+            }
+        );
+    } else {
+        scrollToTop(false);
+        updateNavigation("home");
+    }
+}
+
+function initializePageFromHash() {
+    const hash =
+        window.location.hash;
+
+    if (hash === "#about") {
+        setPage("about");
+        scrollToTop(false);
+        return;
+    }
+
+    setPage("home");
+
+    if (hash === "#menu") {
+        scrollToMenu(false);
+    } else {
+        scrollToTop(false);
+    }
+}
+
+window.addEventListener(
+    "load",
+    () => {
+        initializePageFromHash();
+        runLoadingAnimation();
+    }
+);
+
+</script>
+
+</body>
+</html>
