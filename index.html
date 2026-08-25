@@ -155,7 +155,23 @@ nav li {
     align-items: center;
 }
 
+/* Added separators:
+   | on the left of Home
+   | on the right of Menu
+*/
+nav li:first-child::before {
+    content: "|";
+    color: #81252ab;
+    margin: 0 12px;
+}
+
 nav li:not(:last-child)::after {
+    content: "|";
+    color: #81252ab;
+    margin: 0 12px;
+}
+
+nav li:last-child::after {
     content: "|";
     color: #81252ab;
     margin: 0 12px;
@@ -1131,6 +1147,27 @@ footer {
 }
 
 /* =========================
+   ABOUT FOOTER BUTTON
+========================= */
+
+.about-footer-link {
+    display: inline-block;
+    margin-right: 12px;
+    color: #6e7892;
+    text-decoration: none;
+    font-weight: normal;
+    transition: color .2s, text-shadow .2s;
+    cursor: pointer;
+}
+
+.about-footer-link:hover {
+    color: #54d2ff;
+    text-shadow:
+        0 0 5px rgba(84,210,255,.7),
+        0 0 12px rgba(84,210,255,.45);
+}
+
+/* =========================
    RESPONSIVE
 ========================= */
 
@@ -1139,6 +1176,8 @@ footer {
         padding: 0 4%;
     }
 
+    nav li:first-child::before,
+    nav li:last-child::after,
     nav li:not(:last-child)::after {
         margin: 0 6px;
     }
@@ -1196,6 +1235,8 @@ footer {
         gap: 0;
     }
 
+    nav li:first-child::before,
+    nav li:last-child::after,
     nav li:not(:last-child)::after {
         margin: 0 4px;
     }
@@ -1265,12 +1306,6 @@ footer {
         <li>
             <a id="menuNav" href="#menu" onclick="handleMenuClick(event)">
                 Menu
-            </a>
-        </li>
-
-        <li>
-            <a id="aboutNav" href="#about" onclick="handleAboutClick(event)">
-                About Us
             </a>
         </li>
     </ul>
@@ -1813,6 +1848,14 @@ footer {
 </section>
 
 <footer>
+    <a
+        id="aboutFooter"
+        class="about-footer-link"
+        href="#about"
+        onclick="handleAboutClick(event)"
+    >
+        About Us
+    </a>
     Skeld Cafeteria • All rights reserved.
 </footer>
 
@@ -2240,14 +2283,12 @@ function scrollToMenu(smooth = true) {
 function updateNavigation(page) {
     const homeNav = document.getElementById("homeNav");
     const menuNav = document.getElementById("menuNav");
-    const aboutNav = document.getElementById("aboutNav");
 
     homeNav.classList.remove("active");
     menuNav.classList.remove("active");
-    aboutNav.classList.remove("active");
 
     if (page === "about") {
-        aboutNav.classList.add("active");
+        return;
     } else {
         homeNav.classList.add("active");
     }
@@ -2273,11 +2314,9 @@ function updateNavigationByScroll() {
 
     const homeNav = document.getElementById("homeNav");
     const menuNav = document.getElementById("menuNav");
-    const aboutNav = document.getElementById("aboutNav");
 
     homeNav.classList.remove("active");
     menuNav.classList.remove("active");
-    aboutNav.classList.remove("active");
 
     if (menuTop <= navHeight + 10) {
         menuNav.classList.add("active");
