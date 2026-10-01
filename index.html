@@ -24,10 +24,6 @@ body {
     overflow-x: hidden;
 }
 
-/* =========================
-   LOADING SCREEN
-========================= */
-
 #loadingSystem {
     position: fixed;
     inset: 0;
@@ -113,10 +109,6 @@ body {
     transform: translateX(100%);
 }
 
-/* =========================
-   NAVIGATION
-========================= */
-
 nav {
     position: sticky;
     top: 0;
@@ -155,10 +147,6 @@ nav li {
     align-items: center;
 }
 
-/* Added separators:
-   | on the left of Home
-   | on the right of Menu
-*/
 nav li:first-child::before {
     content: "|";
     color: #81252ab;
@@ -206,10 +194,6 @@ nav a.active {
     transform: translateY(-2px);
 }
 
-/* =========================
-   PAGES
-========================= */
-
 .page {
     display: none;
     min-height: calc(100vh - 70px);
@@ -251,10 +235,6 @@ nav a.active {
     opacity: 1;
     pointer-events: auto;
 }
-
-/* =========================
-   HERO
-========================= */
 
 .hero {
     min-height: calc(100vh - 70px);
@@ -327,10 +307,6 @@ nav a.active {
     transform: translateX(-65px);
     object-fit: contain;
 }
-
-/* =========================
-   FOOD IMAGE SCROLL GALLERY
-========================= */
 
 .food-gallery {
     position: absolute;
@@ -460,10 +436,6 @@ nav a.active {
         transform: translateY(-77px);
     }
 }
-
-/* =========================
-   MENU
-========================= */
 
 .menu-section {
     padding: 65px 6%;
@@ -649,10 +621,6 @@ nav a.active {
     padding: 40px;
 }
 
-/* =========================
-   ABOUT
-========================= */
-
 .about-page {
     min-height: calc(100vh - 70px);
     display: flex;
@@ -725,10 +693,6 @@ nav a.active {
     background: #78ddff;
     transform: translateY(-2px);
 }
-
-/* =========================
-   CART
-========================= */
 
 .cart-panel {
     position: fixed;
@@ -851,10 +815,6 @@ nav a.active {
     background: #42485a;
     cursor: not-allowed;
 }
-
-/* =========================
-   OVERLAY / MODAL
-========================= */
 
 .overlay {
     position: fixed;
@@ -1021,10 +981,6 @@ nav a.active {
     background: #78ddff;
 }
 
-/* =========================
-   ORDERING
-========================= */
-
 #orderingScreen {
     position: fixed;
     inset: 0;
@@ -1115,10 +1071,6 @@ nav a.active {
     transform: scale(1.25);
 }
 
-/* =========================
-   TOAST / FOOTER
-========================= */
-
 .toast {
     position: fixed;
     bottom: 25px;
@@ -1146,10 +1098,6 @@ footer {
     border-top: 1px solid #202942;
 }
 
-/* =========================
-   ABOUT FOOTER BUTTON
-========================= */
-
 .about-footer-link {
     display: inline-block;
     margin-right: 12px;
@@ -1166,10 +1114,6 @@ footer {
         0 0 5px rgba(84,210,255,.7),
         0 0 12px rgba(84,210,255,.45);
 }
-
-/* =========================
-   RESPONSIVE
-========================= */
 
 @media(max-width:700px) {
     nav {
@@ -1332,7 +1276,7 @@ footer {
         </p>
 
         <p>
-            No sabotages, suspicious ingredients and no emergency meetings required, now delivering with lightspeed travel.
+            Now delivering with lightspeed travel!
         </p>
 
     </div>
@@ -2008,40 +1952,6 @@ footer {
                     placeholder="House/Building, Street, Barangay, City"
                     required
                 ></textarea>
-
-            </div>
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label for="city">
-                        City *
-                    </label>
-
-                    <input
-                        type="text"
-                        id="city"
-                        placeholder="City"
-                        required
-                    >
-
-                </div>
-
-                <div class="form-group">
-
-                    <label for="postalCode">
-                        Postal Code *
-                    </label>
-
-                    <input
-                        type="text"
-                        id="postalCode"
-                        placeholder="Postal Code"
-                        required
-                    >
-
-                </div>
 
             </div>
 
@@ -2975,17 +2885,7 @@ function submitOrder(event) {
             .value
             .trim();
 
-    const city =
-        document
-            .getElementById("city")
-            .value
-            .trim();
 
-    const postal =
-        document
-            .getElementById("postalCode")
-            .value
-            .trim();
 
     const payment =
         document
@@ -2996,8 +2896,6 @@ function submitOrder(event) {
         !name ||
         !phone ||
         !address ||
-        !city ||
-        !postal ||
         !payment
     ) {
         showToast(
